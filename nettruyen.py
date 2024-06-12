@@ -23,7 +23,7 @@ makedirs(download_dir,exist_ok=True)
 
 
 def onechapter(web, headers):
-    res = requests.get(web,headers=headers)
+    res = requests.get(web, headers=headers)
     html_content = res.text
     soup = BeautifulSoup(html_content, 'html.parser')
     #debug
@@ -40,10 +40,16 @@ def onechapter(web, headers):
     for index, link in enumerate(img_links):
         print(link)
         file = join(folder,f"image_{index}.jpg")
-        response = requests.get(link, headers=headers)
+        while True:
+            try:
+                response = requests.get(link, headers=headers)
+                break
+            except:
+                print("Error. Retrying...")
         with open(file, "wb") as f:
             f.write(response.content)
     time.sleep(1)
+    print(" ")
     print("Xong.")
 
 def multichapters(web, headers):
@@ -61,10 +67,25 @@ def multichapters(web, headers):
     links.reverse()
     #debug
     #print(links)
-    for x in range(1,len(links)+1):
-        #debug
-        #print(x)
-        onechapter(links[x],headers)
+    print("Chọn chế độ tải: ")
+    print("(T) Toàn bộ chương hiện có")
+    print("(K) Một khoảng chương (từ chương nào đó đến chương nào đó theo thứ tự).")
+    print("(C) Chỉ định các chương muốn tải.")
+    c = str(input("Chọn chế độ: "))
+    if c == "T":
+        for x in range(1,len(links)+1):
+            #print(x) #debug
+            onechapter(links[x],headers)
+    elif c == "K":
+        k = str(input("Vui lòng điền khoảng chương (VD: 25, 30): "))
+        a = list(map(int,k.split(",")))
+        for x in range(a[0],a[1]+1):
+            onechapter(links[x],headers)
+    elif c == "C":
+        m = str(input("Vui lòng điền danh sách các chương bạn muốn tải (VD: 5, 10, 15, 20,...): "))
+        b = list(map(int,m.split(",")))
+        for x in b:
+            onechapter(links[x],headers)
 
 
 web = str(input("Nhập đường link của truyện: "))
@@ -76,7 +97,6 @@ if referer in reffer_list:
 else:
     print("Phát hiện tên miền mới chưa có trong danh sách hỗ trợ:",referer)
     print("Tool vẫn sẽ chạy nhưng có thể gặp lỗi.")
-    print("Nếu được bạn có thể liên hệ với mình để cập nhật tool.")
     time.sleep(5)
     print("Running...")
 headers = {
